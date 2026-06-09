@@ -7,5 +7,13 @@ const Auth = (() => {
     Common.saveSession({ username: username || "Player" });
   }
 
-  return { currentUser, setUser };
+  function setRegisteredUser(user) {
+    Common.saveSession({
+      username: user.username || "Player",
+      userCode: user.userCode || "",
+      userStatus: user.status || ""
+    });
+  }
+
+  return { currentUser, setUser, setRegisteredUser };
 })();

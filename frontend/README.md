@@ -59,7 +59,7 @@ Open `http://localhost:8080`.
 Default REST base URL:
 
 ```text
-http://localhost:8080/api
+http://localhost:8080
 ```
 
 Default WebSocket URL:

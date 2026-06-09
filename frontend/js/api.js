@@ -1,5 +1,5 @@
 const Api = (() => {
-  const DEFAULT_BASE_URL = "http://localhost:8080/api";
+  const DEFAULT_BASE_URL = "http://localhost:8080";
   const STORAGE_KEY = "skillclash_api_base";
 
   function getBaseUrl() {
@@ -43,18 +43,42 @@ const Api = (() => {
         body: options.body ? JSON.stringify(options.body) : undefined
       });
     } catch (error) {
-      throw new Error("Unable to reach SkillClash API. Confirm the backend URL and CORS settings.");
+      const networkError = new Error("Unable to reach SkillClash API. Check that the backend is running, the API base URL is correct, and CORS allows this frontend origin.");
+      networkError.isNetworkError = true;
+      throw networkError;
     }
 
     const contentType = response.headers.get("content-type") || "";
     const payload = contentType.includes("application/json") ? await response.json() : await response.text();
 
+    if (isBackendErrorPayload(payload)) {
+      throwApiError(payload.message || payload.error || "Request failed.", payload, response.status);
+    }
+
     if (!response.ok) {
       const message = payload?.message || payload?.error || `Request failed with status ${response.status}`;
-      throw new Error(message);
+      throwApiError(message, payload, response.status);
     }
 
     return payload;
+  }
+
+  function isBackendErrorPayload(payload) {
+    return Boolean(
+      payload &&
+      typeof payload === "object" &&
+      payload.error &&
+      payload.message &&
+      Number(payload.status) >= 400
+    );
+  }
+
+  function throwApiError(message, payload, httpStatus) {
+    const error = new Error(message);
+    error.payload = payload;
+    error.httpStatus = httpStatus;
+    error.isApiError = true;
+    throw error;
   }
 
   return {
