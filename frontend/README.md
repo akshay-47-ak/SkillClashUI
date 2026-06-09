@@ -28,6 +28,7 @@ frontend/
 │   ├── style.css
 │   └── components.css
 ├── js/
+│   ├── landing.js
 │   ├── api.js
 │   ├── websocket.js
 │   ├── auth.js
@@ -50,6 +51,8 @@ python3 -m http.server 8080
 ```
 
 Open `http://localhost:8080`.
+
+`index.html` is the public landing page with login and registration modals. The app flow after authentication starts at `pages/home.html`.
 
 ## Backend Integration
 

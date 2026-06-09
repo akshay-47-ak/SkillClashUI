@@ -151,3 +151,50 @@
 .ranking-row:first-child {
   background: rgba(245, 158, 11, 0.12);
 }
+
+.landing-hero {
+  min-height: calc(100vh - 5rem);
+  display: flex;
+  align-items: center;
+}
+
+.landing-metrics strong,
+.landing-metrics span {
+  display: block;
+}
+
+.landing-metrics strong {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.landing-metrics span {
+  color: var(--sc-muted);
+  font-size: 0.88rem;
+}
+
+.landing-preview {
+  transform: translateZ(0);
+}
+
+.landing-option {
+  border: 1px solid var(--sc-border);
+  border-radius: 0.65rem;
+  padding: 0.75rem 0.9rem;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.landing-option.active {
+  border-color: rgba(196, 181, 253, 0.72);
+  background: rgba(99, 102, 241, 0.24);
+  color: #fff;
+  font-weight: 800;
+}
+
+.sc-modal {
+  background: rgba(30, 41, 59, 0.98);
+  border: 1px solid var(--sc-border);
+  color: var(--sc-text);
+}
