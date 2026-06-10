@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page;
+  const publicPages = ["landing"];
 
   const initializers = {
     landing: () => LandingPage.init(),
@@ -10,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     quiz: () => QuizPage.init(),
     result: () => ResultPage.init()
   };
+
+  if (!publicPages.includes(page) && !Common.requireAuth()) return;
 
   initializers[page]?.();
 });

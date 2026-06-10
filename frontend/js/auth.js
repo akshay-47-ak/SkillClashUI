@@ -15,5 +15,9 @@ const Auth = (() => {
     });
   }
 
-  return { currentUser, setUser, setRegisteredUser };
+  function clearSession() {
+    Common.clearSession();
+  }
+
+  return { currentUser, setUser, setRegisteredUser, clearSession };
 })();

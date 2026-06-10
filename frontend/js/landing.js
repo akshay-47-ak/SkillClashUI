@@ -2,6 +2,7 @@ const LandingPage = (() => {
   function init() {
     bindLoginForm();
     bindRegisterForm();
+    showSessionMessage();
   }
 
   function bindLoginForm() {
@@ -22,7 +23,7 @@ const LandingPage = (() => {
         const loginUsername = getLoginUsername(response, username);
         Auth.setUser(loginUsername);
         sessionStorage.setItem("skillclash_show_welcome", "true");
-        Common.showToast(`Welcome back, ${Common.escapeHtml(loginUsername)}.`);
+        Common.showToast(`Welcome back, ${loginUsername}.`);
         redirectToApp();
       } catch (error) {
         if (error.isNetworkError) {
@@ -91,6 +92,14 @@ const LandingPage = (() => {
     window.setTimeout(() => {
       window.location.href = "pages/home.html";
     }, 450);
+  }
+
+  function showSessionMessage() {
+    const message = sessionStorage.getItem("skillclash_logout_message") || sessionStorage.getItem("skillclash_auth_message");
+    if (!message) return;
+    sessionStorage.removeItem("skillclash_logout_message");
+    sessionStorage.removeItem("skillclash_auth_message");
+    Common.showToast(message);
   }
 
   return { init };

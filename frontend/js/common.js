@@ -29,7 +29,7 @@ const Common = (() => {
               </ul>
             </div>
             <div class="sc-navbar-player">
-              ${playerChip(username)}
+              ${playerMenu(username)}
             </div>
           </div>
         </nav>
@@ -48,12 +48,14 @@ const Common = (() => {
     }
 
     bindSettings();
+    bindPlayerMenu();
+    bindLogout();
     bindSocketStatus();
     renderPlayerIdentity(username);
 
     if (active === "home" && sessionStorage.getItem("skillclash_show_welcome") === "true") {
       sessionStorage.removeItem("skillclash_show_welcome");
-      showToast(`Welcome back, ${escapeHtml(username)}. Ready to battle?`);
+      showToast(`Welcome back, ${username}. Ready to battle?`);
     }
   }
 
@@ -65,9 +67,26 @@ const Common = (() => {
   function playerChip(username) {
     const safeName = escapeHtml(username);
     return `
-      <div class="sc-player-chip" aria-label="Signed in player">
+      <span class="sc-player-chip">
         <span class="avatar avatar-sm">${escapeHtml(initials(username))}</span>
         <span class="sc-player-name">${safeName}</span>
+      </span>
+    `;
+  }
+
+  function playerMenu(username) {
+    return `
+      <div class="sc-player-menu">
+        <button class="sc-player-trigger" data-player-menu-toggle type="button" aria-expanded="false" aria-haspopup="menu">
+          ${playerChip(username)}
+        </button>
+        <div class="sc-player-dropdown" data-player-menu hidden>
+          <div class="sc-player-dropdown-header">
+            <span class="avatar avatar-sm">${escapeHtml(initials(username))}</span>
+            <span>${escapeHtml(username)}</span>
+          </div>
+          <button class="sc-player-dropdown-item" data-logout type="button">Logout</button>
+        </div>
       </div>
     `;
   }
@@ -95,6 +114,75 @@ const Common = (() => {
     });
   }
 
+  function bindPlayerMenu() {
+    document.querySelectorAll("[data-player-menu-toggle]").forEach((button) => {
+      const menu = button.closest(".sc-player-menu")?.querySelector("[data-player-menu]");
+      if (!menu) return;
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isOpen = !menu.hidden;
+        closePlayerMenus();
+        menu.hidden = isOpen;
+        button.setAttribute("aria-expanded", String(!isOpen));
+      });
+    });
+
+    document.addEventListener("click", closePlayerMenus);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closePlayerMenus();
+    });
+  }
+
+  function closePlayerMenus() {
+    document.querySelectorAll("[data-player-menu]").forEach((menu) => {
+      menu.hidden = true;
+    });
+    document.querySelectorAll("[data-player-menu-toggle]").forEach((button) => {
+      button.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function bindLogout() {
+    document.querySelectorAll("[data-logout]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const username = getSession("username", "");
+        if (!username) {
+          finishLogout("You are logged out.");
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Leaving...";
+
+        try {
+          const message = await Api.post(`/auth/user/${encodeURIComponent(username)}/logout`);
+          finishLogout(message || "User Logout Successfully");
+        } catch (error) {
+          button.disabled = false;
+          button.textContent = "Logout";
+
+          if (error.isNetworkError) {
+            showToast(error.message, "error");
+            return;
+          }
+
+          showToast(error.message || "Logout failed.", "error");
+        }
+      });
+    });
+  }
+
+  function finishLogout(message) {
+    clearSession();
+    sessionStorage.setItem("skillclash_logout_message", String(message));
+    window.location.href = landingPath();
+  }
+
+  function landingPath() {
+    return window.location.pathname.includes("/pages/") ? "../index.html" : "index.html";
+  }
+
   function bindSocketStatus() {
     const indicator = document.querySelector("[data-socket-status]");
     if (!indicator) return;
@@ -118,7 +206,7 @@ const Common = (() => {
     toast.setAttribute("role", "status");
     toast.innerHTML = `
       <div class="d-flex">
-        <div class="toast-body">${message}</div>
+        <div class="toast-body">${escapeHtml(message)}</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
     `;
@@ -137,6 +225,33 @@ const Common = (() => {
 
   function getSession(key, fallback = "") {
     return localStorage.getItem(`skillclash_${key}`) || fallback;
+  }
+
+  function isLoggedIn() {
+    return Boolean(getSession("username", "").trim());
+  }
+
+  function requireAuth() {
+    if (isLoggedIn()) return true;
+    sessionStorage.setItem("skillclash_auth_message", "Please login or register before entering the arena.");
+    window.location.href = landingPath();
+    return false;
+  }
+
+  function clearSession() {
+    [
+      "skillclash_token",
+      "skillclash_username",
+      "skillclash_userCode",
+      "skillclash_userStatus",
+      "skillclash_roomCode",
+      "skillclash_roomName",
+      "skillclash_category",
+      "skillclash_maxPlayers",
+      "skillclash_isHost",
+      "skillclash_roomSnapshot",
+      "skillclash_resultSnapshot"
+    ].forEach((key) => localStorage.removeItem(key));
   }
 
   function initials(name = "P") {
@@ -159,6 +274,9 @@ const Common = (() => {
     getParam,
     saveSession,
     getSession,
+    isLoggedIn,
+    requireAuth,
+    clearSession,
     initials,
     escapeHtml
   };

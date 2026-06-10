@@ -40,6 +40,7 @@ const Api = (() => {
       response = await fetch(buildUrl(path, options.query), {
         method: options.method || "GET",
         headers,
+        credentials: "include",
         body: options.body ? JSON.stringify(options.body) : undefined
       });
     } catch (error) {
@@ -55,7 +56,7 @@ const Api = (() => {
     }
 
     if (!response.ok) {
-      const message = payload?.message || payload?.error || (typeof payload === "string" && payload) || `Request failed with status ${response.status}`;
+      const message = payload?.message || payload?.error || (typeof payload === "string" && payload) || defaultErrorMessage(response.status);
       throwApiError(message, payload, response.status);
     }
 
@@ -90,6 +91,11 @@ const Api = (() => {
     error.httpStatus = httpStatus;
     error.isApiError = true;
     throw error;
+  }
+
+  function defaultErrorMessage(status) {
+    if (status === 403) return "You are not allowed to perform this action. Please login again and try once more.";
+    return `Request failed with status ${status}`;
   }
 
   return {
