@@ -36,8 +36,8 @@ const Common = (() => {
       footer.innerHTML = `
         <footer class="border-top border-slate-700/60 py-4 mt-auto">
           <div class="container d-flex flex-column flex-md-row gap-2 justify-content-between text-slate-400 small">
-            <span>SkillClash real-time quiz battles</span>
-            <span>Spring Boot REST + native STOMP WebSocket ready</span>
+            <span>SkillClash quiz battles with friends</span>
+            <span>Create a room. Beat the clock. Claim the crown.</span>
           </div>
         </footer>
       `;
@@ -55,10 +55,10 @@ const Common = (() => {
   function bindSettings() {
     document.querySelectorAll("[data-settings-open]").forEach((button) => {
       button.addEventListener("click", () => {
-        const apiUrl = window.prompt("Backend API base URL", Api.getBaseUrl());
+        const apiUrl = window.prompt("Game server URL", Api.getBaseUrl());
         if (apiUrl) Api.setBaseUrl(apiUrl);
 
-        const wsUrl = window.prompt("WebSocket URL", SkillClashSocket.getUrl());
+        const wsUrl = window.prompt("Live match server URL", SkillClashSocket.getUrl());
         if (wsUrl) SkillClashSocket.setUrl(wsUrl);
 
         showToast("Settings saved for this browser.");

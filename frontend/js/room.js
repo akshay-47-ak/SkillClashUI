@@ -1,5 +1,5 @@
 const RoomPage = (() => {
-  const categories = ["Java", "Spring Boot", "JavaScript", "Databases", "System Design"];
+  const categories = ["Brain Blitz", "World Trivia", "Sports Rush", "Movie Mania", "Science Sprint"];
 
   function localRoom(payload = {}) {
     const roomCode = payload.roomCode || Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -7,7 +7,7 @@ const RoomPage = (() => {
       roomCode,
       roomName: payload.roomName || "Skill Battle",
       maxPlayers: Number(payload.maxPlayers || 8),
-      category: payload.category || "Java",
+      category: payload.category || "Brain Blitz",
       host: payload.username || Auth.currentUser(),
       members: [{ username: payload.username || Auth.currentUser(), host: payload.host !== false, score: 0 }]
     };

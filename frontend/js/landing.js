@@ -10,16 +10,16 @@ const LandingPage = (() => {
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      const submitButton = form.querySelector('[type="submit"]');
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
       const username = payload.username?.trim() || "Player";
 
+      setSubmitting(submitButton, true, "Logging in...");
+
       try {
-        const response = await Api.post("/auth/login", payload);
-        if (response.token) {
-          localStorage.setItem("skillclash_token", response.token);
-        }
-        Auth.setUser(response.username || username);
+        const response = await Api.post("/auth/user/login", payload);
+        Auth.setUser(getLoginUsername(response, username));
         Common.showToast("Login successful.");
         redirectToApp();
       } catch (error) {
@@ -29,6 +29,8 @@ const LandingPage = (() => {
         }
 
         Common.showToast(error.message || "Login failed.", "error");
+      } finally {
+        setSubmitting(submitButton, false, "Login");
       }
     });
   }
@@ -70,6 +72,11 @@ const LandingPage = (() => {
       email: String(formData.get("email") || "").trim(),
       password: String(formData.get("password") || "")
     };
+  }
+
+  function getLoginUsername(response, fallback) {
+    if (typeof response === "string") return response.trim() || fallback;
+    return response?.username || fallback;
   }
 
   function setSubmitting(button, isSubmitting, label) {

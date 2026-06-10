@@ -2,21 +2,21 @@ const QuizPage = (() => {
   const demoQuestions = [
     {
       id: 1,
-      text: "Which Spring annotation creates a REST controller?",
-      options: ["@Service", "@Repository", "@RestController", "@Component"],
-      answer: 2
+      text: "Which planet is known as the Red Planet?",
+      options: ["Venus", "Mars", "Jupiter", "Mercury"],
+      answer: 1
     },
     {
       id: 2,
-      text: "Which protocol pattern does STOMP use over WebSocket?",
-      options: ["Frames", "SQL rows", "HTML forms", "Binary only"],
-      answer: 0
+      text: "How many players are on the field for one soccer team?",
+      options: ["9", "10", "11", "12"],
+      answer: 2
     },
     {
       id: 3,
-      text: "Which HTTP method is commonly used to create a room?",
-      options: ["GET", "POST", "TRACE", "OPTIONS"],
-      answer: 1
+      text: "Which movie series features the Infinity Stones?",
+      options: ["Marvel", "Star Wars", "Harry Potter", "Jurassic Park"],
+      answer: 0
     }
   ];
 

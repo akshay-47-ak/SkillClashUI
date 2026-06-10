@@ -43,20 +43,19 @@ const Api = (() => {
         body: options.body ? JSON.stringify(options.body) : undefined
       });
     } catch (error) {
-      const networkError = new Error("Unable to reach SkillClash API. Check that the backend is running, the API base URL is correct, and CORS allows this frontend origin.");
+      const networkError = new Error("Unable to reach the SkillClash game server. Please check the server address or try again in a moment.");
       networkError.isNetworkError = true;
       throw networkError;
     }
 
-    const contentType = response.headers.get("content-type") || "";
-    const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+    const payload = parseResponseBody(await response.text());
 
     if (isBackendErrorPayload(payload)) {
       throwApiError(payload.message || payload.error || "Request failed.", payload, response.status);
     }
 
     if (!response.ok) {
-      const message = payload?.message || payload?.error || `Request failed with status ${response.status}`;
+      const message = payload?.message || payload?.error || (typeof payload === "string" && payload) || `Request failed with status ${response.status}`;
       throwApiError(message, payload, response.status);
     }
 
@@ -71,6 +70,18 @@ const Api = (() => {
       payload.message &&
       Number(payload.status) >= 400
     );
+  }
+
+  function parseResponseBody(body) {
+    const trimmedBody = body.trim();
+    if (!trimmedBody) return "";
+    if (!["{", "["].includes(trimmedBody[0])) return body;
+
+    try {
+      return JSON.parse(trimmedBody);
+    } catch (error) {
+      return body;
+    }
   }
 
   function throwApiError(message, payload, httpStatus) {
