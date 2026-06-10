@@ -6,6 +6,7 @@ const Common = (() => {
   function renderShell(active = "home") {
     const nav = document.querySelector("[data-app-nav]");
     const footer = document.querySelector("[data-app-footer]");
+    const username = getSession("username", "Player");
 
     if (nav) {
       nav.innerHTML = `
@@ -27,6 +28,9 @@ const Common = (() => {
                 <li class="nav-item"><button class="btn sc-btn-ghost btn-sm ms-lg-2" data-settings-open type="button">Settings</button></li>
               </ul>
             </div>
+            <div class="sc-navbar-player">
+              ${playerChip(username)}
+            </div>
           </div>
         </nav>
       `;
@@ -45,11 +49,36 @@ const Common = (() => {
 
     bindSettings();
     bindSocketStatus();
+    renderPlayerIdentity(username);
+
+    if (active === "home" && sessionStorage.getItem("skillclash_show_welcome") === "true") {
+      sessionStorage.removeItem("skillclash_show_welcome");
+      showToast(`Welcome back, ${escapeHtml(username)}. Ready to battle?`);
+    }
   }
 
   function navLink(key, label, href, active) {
     const activeClass = key === active ? "text-white fw-bold" : "text-slate-300";
     return `<li class="nav-item"><a class="nav-link ${activeClass}" href="${pagePath(href)}">${label}</a></li>`;
+  }
+
+  function playerChip(username) {
+    const safeName = escapeHtml(username);
+    return `
+      <div class="sc-player-chip" aria-label="Signed in player">
+        <span class="avatar avatar-sm">${escapeHtml(initials(username))}</span>
+        <span class="sc-player-name">${safeName}</span>
+      </div>
+    `;
+  }
+
+  function renderPlayerIdentity(username) {
+    document.querySelectorAll("[data-player-name]").forEach((element) => {
+      element.textContent = username;
+    });
+    document.querySelectorAll("[data-player-welcome]").forEach((element) => {
+      element.textContent = `Welcome back, ${username}`;
+    });
   }
 
   function bindSettings() {

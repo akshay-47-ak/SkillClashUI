@@ -19,8 +19,10 @@ const LandingPage = (() => {
 
       try {
         const response = await Api.post("/auth/user/login", payload);
-        Auth.setUser(getLoginUsername(response, username));
-        Common.showToast("Login successful.");
+        const loginUsername = getLoginUsername(response, username);
+        Auth.setUser(loginUsername);
+        sessionStorage.setItem("skillclash_show_welcome", "true");
+        Common.showToast(`Welcome back, ${Common.escapeHtml(loginUsername)}.`);
         redirectToApp();
       } catch (error) {
         if (error.isNetworkError) {
