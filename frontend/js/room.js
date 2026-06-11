@@ -1,6 +1,4 @@
 const RoomPage = (() => {
-  const categories = ["Brain Blitz", "World Trivia", "Sports Rush", "Movie Mania", "Science Sprint"];
-
   function localRoom(payload = {}) {
     const roomCode = payload.roomCode || Math.random().toString(36).slice(2, 8).toUpperCase();
     return {
@@ -13,32 +11,31 @@ const RoomPage = (() => {
     };
   }
 
-  function renderCategoryOptions(select) {
-    if (!select) return;
-    select.innerHTML = categories.map((category) => `<option value="${category}">${category}</option>`).join("");
-  }
-
   function initCreateRoom() {
     Common.renderShell("create");
-    renderCategoryOptions(document.querySelector("#category"));
+    const username = Auth.currentUser();
+    const usernameInput = document.querySelector("#username");
+    if (usernameInput) usernameInput.value = username;
 
     document.querySelector("#createRoomForm")?.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      const payload = {
-        roomName: form.get("roomName").trim(),
-        maxPlayers: Number(form.get("maxPlayers")),
-        category: form.get("category"),
-        username: Auth.currentUser()
-      };
+      const form = event.currentTarget;
+      const submitButton = form.querySelector("button[type='submit']");
+      const payload = { username };
 
       try {
-        const room = await Api.post("/rooms", payload);
+        setSubmitting(submitButton, true, "Creating...");
+        const roomCode = normalizeRoomCode(await Api.post("/room/create", payload));
+
+        if (!roomCode) {
+          throw new Error("Room created, but the server did not return a room code.");
+        }
+
+        const room = localRoom({ roomCode, username, roomName: "Skill Battle" });
         persistRoom(room, true);
       } catch (error) {
-        const room = localRoom(payload);
-        persistRoom(room, true);
-        Common.showToast("Backend unavailable. Created a local demo room.", "error");
+        Common.showToast(error.message || "Unable to create room.", "error");
+        setSubmitting(submitButton, false, "Create Room");
       }
     });
   }
@@ -76,6 +73,20 @@ const RoomPage = (() => {
     });
 
     window.location.href = `lobby.html?roomCode=${encodeURIComponent(room.roomCode || room.code)}`;
+  }
+
+  function normalizeRoomCode(response) {
+    if (typeof response === "string") return response.trim();
+    if (response && typeof response === "object") {
+      return String(response.roomCode || response.RoomCode || response.code || "").trim();
+    }
+    return "";
+  }
+
+  function setSubmitting(button, isSubmitting, label) {
+    if (!button) return;
+    button.disabled = isSubmitting;
+    button.textContent = label;
   }
 
   return { initCreateRoom, initJoinRoom };

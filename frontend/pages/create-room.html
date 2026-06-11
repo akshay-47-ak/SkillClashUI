@@ -19,20 +19,12 @@
               <div class="mb-4">
                 <span class="sc-pill mb-3">Host console</span>
                 <h1 class="h1 fw-black">Create a quiz room</h1>
-                <p class="text-slate-400">Set battle details and open a lobby for players.</p>
+                <p class="text-slate-400">Open a lobby with your active SkillClash account.</p>
               </div>
               <form id="createRoomForm" class="sc-card p-4 vstack gap-3">
                 <div>
-                  <label class="form-label" for="roomName">Room Name</label>
-                  <input class="form-control form-control-lg focus-ring" id="roomName" name="roomName" placeholder="Friday Java Clash" required>
-                </div>
-                <div>
-                  <label class="form-label" for="maxPlayers">Max Players</label>
-                  <input class="form-control form-control-lg focus-ring" id="maxPlayers" name="maxPlayers" type="number" min="2" max="50" value="8" required>
-                </div>
-                <div>
-                  <label class="form-label" for="category">Category</label>
-                  <select class="form-select form-select-lg focus-ring" id="category" name="category" required></select>
+                  <label class="form-label" for="username">Username</label>
+                  <input class="form-control form-control-lg focus-ring" id="username" name="username" readonly>
                 </div>
                 <button class="btn sc-btn-primary btn-lg mt-2 focus-ring" type="submit">Create Room</button>
               </form>
