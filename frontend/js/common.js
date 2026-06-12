@@ -244,6 +244,7 @@ const Common = (() => {
       "skillclash_username",
       "skillclash_userCode",
       "skillclash_userStatus",
+      "skillclash_roomId",
       "skillclash_roomCode",
       "skillclash_roomName",
       "skillclash_category",

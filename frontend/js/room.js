@@ -2,6 +2,7 @@ const RoomPage = (() => {
   function localRoom(payload = {}) {
     const roomCode = payload.roomCode || Math.random().toString(36).slice(2, 8).toUpperCase();
     return {
+      roomId: payload.roomId || roomCode,
       roomCode,
       roomName: payload.roomName || "Skill Battle",
       maxPlayers: Number(payload.maxPlayers || 8),
@@ -51,9 +52,20 @@ const RoomPage = (() => {
       Auth.setUser(username);
 
       try {
-        const room = await Api.post(`/rooms/${roomCode}/join`, { username });
+        const roomId = normalizeRoomId(await Api.post("/room/join", { userName: username, roomCode }));
+
+        if (!roomId) {
+          throw new Error("Joined room, but the server did not return a room id.");
+        }
+
+        const room = localRoom({ roomId, roomCode, username, roomName: "Skill Battle", host: false });
         persistRoom(room, false);
       } catch (error) {
+        if (error.isApiError) {
+          Common.showToast(error.message || "Unable to join room.", "error");
+          return;
+        }
+
         const room = localRoom({ roomCode, username, roomName: "Demo Arena", host: false });
         room.members.push({ username: "Host", host: true, score: 0 });
         persistRoom(room, false);
@@ -63,8 +75,12 @@ const RoomPage = (() => {
   }
 
   function persistRoom(room, isHost) {
+    const roomCode = room.roomCode || room.code || "";
+    const roomId = room.roomId || room.id || roomCode;
+
     Common.saveSession({
-      roomCode: room.roomCode || room.code,
+      roomId,
+      roomCode,
       roomName: room.roomName || room.name || "Skill Battle",
       category: room.category || "Mixed",
       maxPlayers: room.maxPlayers || 8,
@@ -72,13 +88,22 @@ const RoomPage = (() => {
       roomSnapshot: JSON.stringify(room)
     });
 
-    window.location.href = `lobby.html?roomCode=${encodeURIComponent(room.roomCode || room.code)}`;
+    const params = new URLSearchParams({ roomCode, roomId });
+    window.location.href = `lobby.html?${params.toString()}`;
   }
 
   function normalizeRoomCode(response) {
     if (typeof response === "string") return response.trim();
     if (response && typeof response === "object") {
       return String(response.roomCode || response.RoomCode || response.code || "").trim();
+    }
+    return "";
+  }
+
+  function normalizeRoomId(response) {
+    if (typeof response === "string") return response.trim();
+    if (response && typeof response === "object") {
+      return String(response.roomId || response.RoomId || response.id || "").trim();
     }
     return "";
   }
