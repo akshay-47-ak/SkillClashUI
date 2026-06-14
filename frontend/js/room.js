@@ -26,13 +26,16 @@ const RoomPage = (() => {
 
       try {
         setSubmitting(submitButton, true, "Creating...");
-        const roomCode = normalizeRoomCode(await Api.post("/room/create", payload));
-
+        const response = await Api.post("/room/create", payload);
+        const roomCode = normalizeRoomCode(response);
         if (!roomCode) {
           throw new Error("Room created, but the server did not return a room code.");
         }
 
-        const room = localRoom({ roomCode, username, roomName: "Skill Battle" });
+        const room = {
+          ...localRoom({ roomCode, username, roomName: "Skill Battle" }),
+          members: normalizeMembers(response) || undefined
+        };
         persistRoom(room, true);
       } catch (error) {
         Common.showToast(error.message || "Unable to create room.", "error");
@@ -52,13 +55,17 @@ const RoomPage = (() => {
       Auth.setUser(username);
 
       try {
-        const roomId = normalizeRoomId(await Api.post("/room/join", { userName: username, roomCode }));
+        const response = await Api.post("/room/join", { userName: username, roomCode });
+        const responseRoomCode = normalizeRoomCode(response) || roomCode;
 
-        if (!roomId) {
-          throw new Error("Joined room, but the server did not return a room id.");
+        if (!responseRoomCode) {
+          throw new Error("Joined room, but the server did not return a room code.");
         }
 
-        const room = localRoom({ roomId, roomCode, username, roomName: "Skill Battle", host: false });
+        const room = {
+          ...localRoom({ roomCode: responseRoomCode, username, roomName: "Skill Battle", host: false }),
+          members: normalizeMembers(response) || undefined
+        };
         persistRoom(room, false);
       } catch (error) {
         if (error.isApiError) {
@@ -76,10 +83,9 @@ const RoomPage = (() => {
 
   function persistRoom(room, isHost) {
     const roomCode = room.roomCode || room.code || "";
-    const roomId = room.roomId || room.id || roomCode;
 
     Common.saveSession({
-      roomId,
+      roomId: roomCode,
       roomCode,
       roomName: room.roomName || room.name || "Skill Battle",
       category: room.category || "Mixed",
@@ -88,7 +94,7 @@ const RoomPage = (() => {
       roomSnapshot: JSON.stringify(room)
     });
 
-    const params = new URLSearchParams({ roomCode, roomId });
+    const params = new URLSearchParams({ roomCode });
     window.location.href = `lobby.html?${params.toString()}`;
   }
 
@@ -100,12 +106,16 @@ const RoomPage = (() => {
     return "";
   }
 
-  function normalizeRoomId(response) {
-    if (typeof response === "string") return response.trim();
-    if (response && typeof response === "object") {
-      return String(response.roomId || response.RoomId || response.id || "").trim();
-    }
-    return "";
+  function normalizeMembers(response) {
+    if (!response || typeof response !== "object") return null;
+    return [
+      response.members,
+      response.players,
+      response.users,
+      response.participants,
+      response.room?.members,
+      response.room?.players
+    ].find(Array.isArray) || null;
   }
 
   function setSubmitting(button, isSubmitting, label) {

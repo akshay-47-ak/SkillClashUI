@@ -1,5 +1,4 @@
 const LobbyPage = (() => {
-  let roomId = "";
   let roomCode = "";
   let members = [];
   let refreshTimer = null;
@@ -9,7 +8,6 @@ const LobbyPage = (() => {
   function init() {
     Common.renderShell("lobby");
     roomCode = Common.getParam("roomCode", Common.getSession("roomCode", "DEMO01")).toUpperCase();
-    roomId = Common.getParam("roomId", Common.getSession("roomId", roomCode));
     hydrateFromStorage();
     render();
     bindEvents();
@@ -76,11 +74,7 @@ const LobbyPage = (() => {
 
   async function connectRealtime() {
     try {
-      const roomTopics = new Set([roomId, roomCode].filter(Boolean).map((value) => `/topic/room/${value}`));
-
-      for (const topic of roomTopics) {
-        await SkillClashSocket.subscribe(topic, handleRoomUpdate);
-      }
+      await SkillClashSocket.subscribe(`/topic/room/${roomCode}`, handleRoomUpdate);
 
       await SkillClashSocket.subscribe(`/topic/rooms/${roomCode}/members`, (payload) => {
         updateMembers(payload);
@@ -165,9 +159,7 @@ const LobbyPage = (() => {
 
   function persistSnapshot(payload) {
     if (!payload || typeof payload !== "object") return;
-    const nextRoomId = payload.roomId || payload.id || payload.room?.roomId || payload.room?.id;
-    if (nextRoomId) roomId = String(nextRoomId);
-    Common.saveSession({ roomId, roomSnapshot: JSON.stringify({ ...parseStoredRoom(), ...payload, members }) });
+    Common.saveSession({ roomId: roomCode, roomSnapshot: JSON.stringify({ ...parseStoredRoom(), ...payload, members }) });
   }
 
   function parseStoredRoom() {
