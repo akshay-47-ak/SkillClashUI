@@ -9,6 +9,7 @@ Static frontend for a real-time multiplayer quiz battle platform.
 - JavaScript ES6+
 - Tailwind CSS via CDN
 - Bootstrap 5 via CDN
+- SockJS client via CDN for Spring WebSocket fallback
 
 No React, Angular, Vue, npm, Vite, Webpack, jQuery, or TypeScript.
 
@@ -70,4 +71,4 @@ ws://localhost:8080/ws
 
 Use the **Settings** button in the navbar to change both values in the browser.
 
-The WebSocket client uses native browser `WebSocket` and sends STOMP 1.2 frames directly, so it can work with Spring WebSocket/STOMP without adding frontend packages.
+The WebSocket client sends STOMP 1.2 frames directly. It tries native browser `WebSocket` first and falls back to SockJS when the backend exposes a Spring SockJS endpoint.

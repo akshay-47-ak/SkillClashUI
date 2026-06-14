@@ -6,6 +6,7 @@ const SkillClashSocket = (() => {
   let connected = false;
   let reconnectTimer = null;
   let reconnectAttempts = 0;
+  let activeTransportIndex = 0;
 
   function getUrl() {
     return localStorage.getItem(STORAGE_KEY) || DEFAULT_WS_URL;
@@ -14,7 +15,42 @@ const SkillClashSocket = (() => {
   function setUrl(url) {
     const normalized = String(url || DEFAULT_WS_URL).trim();
     localStorage.setItem(STORAGE_KEY, normalized);
+    activeTransportIndex = 0;
     return normalized;
+  }
+
+  function candidateTransports() {
+    const preferredUrl = getUrl();
+    const transports = [{ type: "native", url: preferredUrl }];
+
+    if (window.SockJS) {
+      transports.push({ type: "sockjs", url: toHttpUrl(preferredUrl.replace(/\/websocket$/, "")) });
+    }
+
+    if (preferredUrl.endsWith("/ws")) {
+      transports.push({ type: "native", url: `${preferredUrl}/websocket` });
+    }
+
+    const seen = new Set();
+    return transports.filter((transport) => {
+      const key = `${transport.type}:${transport.url}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function createSocket() {
+    const transport = candidateTransports()[activeTransportIndex] || { type: "native", url: getUrl() };
+    return transport.type === "sockjs" ? new SockJS(transport.url) : new WebSocket(transport.url);
+  }
+
+  function toHttpUrl(url) {
+    return url.replace(/^wss:/, "https:").replace(/^ws:/, "http:");
+  }
+
+  function isOpenOrConnecting() {
+    return socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING);
   }
 
   function frame(command, headers = {}, body = "") {
@@ -24,6 +60,7 @@ const SkillClashSocket = (() => {
 
   function parseFrames(data) {
     return String(data)
+      .replace(/\r\n/g, "\n")
       .split("\0")
       .filter(Boolean)
       .map((raw) => {
@@ -42,24 +79,33 @@ const SkillClashSocket = (() => {
     window.dispatchEvent(new CustomEvent("skillclash:socket-status", { detail: { status } }));
   }
 
+  function on(target, eventName, handler) {
+    if (typeof target.addEventListener === "function") {
+      target.addEventListener(eventName, handler);
+      return;
+    }
+
+    target[`on${eventName}`] = handler;
+  }
+
   function connect() {
-    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+    if (isOpenOrConnecting()) {
       return Promise.resolve();
     }
 
     notifyStatus("connecting");
 
     return new Promise((resolve, reject) => {
-      socket = new WebSocket(getUrl());
+      socket = createSocket();
 
-      socket.addEventListener("open", () => {
+      on(socket, "open", () => {
         socket.send(frame("CONNECT", {
           "accept-version": "1.2",
           "heart-beat": "10000,10000"
         }));
       });
 
-      socket.addEventListener("message", (event) => {
+      on(socket, "message", (event) => {
         parseFrames(event.data).forEach((message) => {
           if (message.command === "CONNECTED") {
             connected = true;
@@ -89,13 +135,13 @@ const SkillClashSocket = (() => {
         });
       });
 
-      socket.addEventListener("close", () => {
+      on(socket, "close", () => {
         connected = false;
         notifyStatus("disconnected");
         scheduleReconnect();
       });
 
-      socket.addEventListener("error", () => {
+      on(socket, "error", () => {
         notifyStatus("error");
         reject(new Error("WebSocket connection failed."));
       });
@@ -105,17 +151,19 @@ const SkillClashSocket = (() => {
   function scheduleReconnect() {
     window.clearTimeout(reconnectTimer);
     reconnectAttempts += 1;
+    activeTransportIndex = (activeTransportIndex + 1) % candidateTransports().length;
     const delay = Math.min(1000 * reconnectAttempts, 8000);
     reconnectTimer = window.setTimeout(connect, delay);
   }
 
-  async function subscribe(destination, handler) {
+  function subscribe(destination, handler) {
     const id = `sub-${subscriptions.size + 1}-${Date.now()}`;
     subscriptions.set(destination, { id, handler });
-    await connect();
 
     if (connected) {
       socket.send(frame("SUBSCRIBE", { id, destination }));
+    } else {
+      connect().catch(() => undefined);
     }
 
     return () => {

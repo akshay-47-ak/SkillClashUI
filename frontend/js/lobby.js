@@ -2,6 +2,9 @@ const LobbyPage = (() => {
   let roomId = "";
   let roomCode = "";
   let members = [];
+  let refreshTimer = null;
+  let refreshEndpoint = "";
+  let refreshProbeFailed = false;
 
   function init() {
     Common.renderShell("lobby");
@@ -10,16 +13,15 @@ const LobbyPage = (() => {
     hydrateFromStorage();
     render();
     bindEvents();
+    refreshRoom();
+    startRoomRefresh();
     connectRealtime();
   }
 
   function hydrateFromStorage() {
-    const snapshot = Common.getSession("roomSnapshot", "");
-    const room = snapshot ? JSON.parse(snapshot) : {};
+    const room = parseStoredRoom();
     members = room.members || [
-      { username: Auth.currentUser(), host: Common.getSession("isHost", "true") === "true", score: 0 },
-      { username: "Nova", host: false, score: 0 },
-      { username: "Byte", host: false, score: 0 }
+      { username: Auth.currentUser(), host: Common.getSession("isHost", "true") === "true", score: 0 }
     ];
   }
 
@@ -74,16 +76,14 @@ const LobbyPage = (() => {
 
   async function connectRealtime() {
     try {
-      await SkillClashSocket.subscribe(`/topic/room/${roomId}`, (payload) => {
-        members = payload.members || members;
-        if (payload.event === "MEMBER_JOINED" && payload.message) {
-          Common.showToast(payload.message);
-        }
-        render();
-      });
+      const roomTopics = new Set([roomId, roomCode].filter(Boolean).map((value) => `/topic/room/${value}`));
+
+      for (const topic of roomTopics) {
+        await SkillClashSocket.subscribe(topic, handleRoomUpdate);
+      }
 
       await SkillClashSocket.subscribe(`/topic/rooms/${roomCode}/members`, (payload) => {
-        members = payload.members || payload || members;
+        updateMembers(payload);
         render();
       });
 
@@ -97,7 +97,89 @@ const LobbyPage = (() => {
     }
   }
 
+  async function refreshRoom() {
+    if (refreshProbeFailed) return false;
+
+    const endpoints = refreshEndpoint ? [refreshEndpoint] : [
+      `/room/${roomCode}`,
+      `/room/${roomCode}/members`,
+      `/rooms/${roomCode}`,
+      `/rooms/${roomCode}/members`
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const payload = await Api.get(endpoint);
+        if (updateMembers(payload)) {
+          refreshEndpoint = endpoint;
+          persistSnapshot(payload);
+          render();
+          return true;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    refreshProbeFailed = !refreshEndpoint;
+    return false;
+  }
+
+  function startRoomRefresh() {
+    window.clearInterval(refreshTimer);
+    refreshTimer = window.setInterval(refreshRoom, 3000);
+    window.addEventListener("beforeunload", () => window.clearInterval(refreshTimer), { once: true });
+  }
+
+  function handleRoomUpdate(payload) {
+    updateMembers(payload);
+    persistSnapshot(payload);
+    if (payload?.event === "MEMBER_JOINED" && payload.message) {
+      Common.showToast(payload.message);
+    }
+    render();
+  }
+
+  function updateMembers(payload) {
+    const nextMembers = extractMembers(payload);
+    if (!nextMembers.length) return false;
+    members = nextMembers;
+    return true;
+  }
+
+  function extractMembers(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (!payload || typeof payload !== "object") return [];
+
+    return [
+      payload.members,
+      payload.players,
+      payload.users,
+      payload.participants,
+      payload.data?.members,
+      payload.data?.players,
+      payload.room?.members,
+      payload.room?.players
+    ].find(Array.isArray) || [];
+  }
+
+  function persistSnapshot(payload) {
+    if (!payload || typeof payload !== "object") return;
+    const nextRoomId = payload.roomId || payload.id || payload.room?.roomId || payload.room?.id;
+    if (nextRoomId) roomId = String(nextRoomId);
+    Common.saveSession({ roomId, roomSnapshot: JSON.stringify({ ...parseStoredRoom(), ...payload, members }) });
+  }
+
+  function parseStoredRoom() {
+    try {
+      return JSON.parse(Common.getSession("roomSnapshot", "")) || {};
+    } catch {
+      return {};
+    }
+  }
+
   function memberName(member) {
+    if (typeof member === "string") return member;
     return member.username || member.userName || member.name || "Player";
   }
 
