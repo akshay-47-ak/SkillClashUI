@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SkillClash | Multiplayer Quiz Battles</title>
-    <meta name="description" content="SkillClash is a real-time multiplayer quiz battle platform with private rooms, live lobbies, timed questions, and ranking tables.">
+    <title>SkillClash | Practice Coding Interviews With Friends</title>
+    <meta name="description" content="SkillClash helps programmers prepare for IT jobs through friendly real-time coding quiz rooms, interview practice, and progress leaderboards.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -14,7 +14,7 @@
     <div class="page-shell">
       <nav class="navbar navbar-expand-lg fixed-top sc-navbar" aria-label="Main navigation">
         <div class="container">
-          <a class="navbar-brand sc-brand text-white" href="index.html" aria-label="SkillClash home">
+          <a class="navbar-brand sc-brand" href="index.html" aria-label="SkillClash home">
             <span class="sc-logo">SC</span>
             <span>SkillClash</span>
           </a>
@@ -23,10 +23,10 @@
           </button>
           <div class="collapse navbar-collapse" id="landingNav">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-2">
-              <li class="nav-item"><a class="nav-link text-white fw-bold" href="#home">Home</a></li>
-              <li class="nav-item"><a class="nav-link text-slate-300" href="#features">Features</a></li>
-              <li class="nav-item"><a class="nav-link text-slate-300" href="#how-it-works">How It Works</a></li>
-              <li class="nav-item"><a class="nav-link text-slate-300" href="#about">About</a></li>
+              <li class="nav-item"><a class="nav-link fw-bold" href="#home">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="#features">Practice</a></li>
+              <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+              <li class="nav-item"><a class="nav-link" href="#companies">Targets</a></li>
               <li class="nav-item"><button class="btn sc-btn-ghost btn-sm ms-lg-2" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button></li>
               <li class="nav-item"><button class="btn sc-btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button></li>
             </ul>
@@ -38,44 +38,44 @@
         <section class="container section-pad position-relative landing-hero">
           <div class="row align-items-center g-4">
             <div class="col-12 col-lg-7">
-              <span class="sc-pill mb-4"><span class="status-dot"></span>Real-time multiplayer quiz battles</span>
-              <h1 class="display-3 fw-black text-white mb-3">Compete, answer fast, and climb the <span class="text-gradient">SkillClash</span> leaderboard.</h1>
-              <p class="lead text-slate-300 mb-4 max-w-2xl">Create private quiz rooms, invite friends with a room code, wait in a live lobby, and battle through timed questions with instant rankings.</p>
+              <span class="sc-pill mb-4"><span class="status-dot"></span>Practice for IT jobs with friends</span>
+              <h1 class="display-3 fw-black mb-3">Prepare for your next tech interview on <span class="text-gradient">SkillClash</span>.</h1>
+              <p class="lead mb-4 max-w-2xl">Create private rooms, invite your friends, and practice programming, aptitude, and interview-style questions in real time. Learn faster together before applying to top companies.</p>
               <div class="d-flex flex-column flex-sm-row gap-3">
-                <button class="btn sc-btn-primary btn-lg focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Create Free Account</button>
+                <button class="btn sc-btn-primary btn-lg focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Start Practicing</button>
                 <button class="btn sc-btn-ghost btn-lg focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
               </div>
               <div class="row g-3 mt-4 landing-metrics">
-                <div class="col-4"><strong>Live</strong><span>Instant room action</span></div>
-                <div class="col-4"><strong>Fast</strong><span>Timed quiz rounds</span></div>
-                <div class="col-4"><strong>Ranked</strong><span>Final leaderboard</span></div>
+                <div class="col-4"><strong>DSA</strong><span>Coding basics</span></div>
+                <div class="col-4"><strong>MCQ</strong><span>Aptitude drills</span></div>
+                <div class="col-4"><strong>Live</strong><span>Friend rooms</span></div>
               </div>
             </div>
 
             <div class="col-12 col-lg-5">
-              <aside class="sc-card p-4 landing-preview" aria-label="SkillClash match preview">
+              <aside class="sc-card p-4 landing-preview" aria-label="SkillClash interview practice preview">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                   <div>
-                    <div class="text-slate-400 small fw-bold">LIVE BATTLE</div>
-                    <div class="h4 fw-black mb-0">Neon Trivia Arena</div>
+                    <div class="small fw-bold text-uppercase preview-kicker">Live Practice Room</div>
+                    <div class="h4 fw-black mb-0">Campus Drive Prep</div>
                   </div>
-                  <span class="badge rounded-pill text-bg-success">Online</span>
+                  <span class="badge rounded-pill text-bg-success">4 Online</span>
                 </div>
                 <div class="sc-card-muted p-3 mb-3">
                   <div class="d-flex justify-content-between mb-2">
-                    <span class="text-slate-400">Question 4 / 10</span>
+                    <span>Question 6 / 15</span>
                     <strong>14s</strong>
                   </div>
-                  <p class="fw-bold mb-3">Which planet is known as the Red Planet?</p>
+                  <p class="fw-bold mb-3">Which data structure is best for FIFO order?</p>
                   <div class="vstack gap-2">
-                    <div class="landing-option">Venus</div>
-                    <div class="landing-option active">Mars</div>
-                    <div class="landing-option">Jupiter</div>
+                    <div class="landing-option">Stack</div>
+                    <div class="landing-option active">Queue</div>
+                    <div class="landing-option">Binary Tree</div>
                   </div>
                 </div>
                 <div class="vstack gap-2">
-                  <div class="d-flex justify-content-between"><span>Maya</span><strong>920</strong></div>
-                  <div class="d-flex justify-content-between"><span>Arjun</span><strong>870</strong></div>
+                  <div class="d-flex justify-content-between"><span>Ananya</span><strong>920</strong></div>
+                  <div class="d-flex justify-content-between"><span>Rahul</span><strong>870</strong></div>
                   <div class="d-flex justify-content-between"><span>You</span><strong>840</strong></div>
                 </div>
               </aside>
@@ -85,29 +85,29 @@
 
         <section id="features" class="container section-pad">
           <div class="text-center mb-4">
-            <span class="sc-pill mb-3">Game features</span>
-            <h2 class="h1 fw-black">Built for quiz battles that feel alive</h2>
+            <span class="sc-pill mb-3">Practice that feels social</span>
+            <h2 class="h1 fw-black">Everything programmers need for group preparation</h2>
           </div>
           <div class="row g-3">
             <div class="col-12 col-md-4">
               <article class="sc-card h-100 p-4">
-                <span class="feature-icon mb-3">VS</span>
-                <h3 class="h5 fw-black">Private Arenas</h3>
-                <p class="text-slate-400 mb-0">Open a battle room and bring friends in with one simple invite code.</p>
+                <span class="feature-icon mb-3">DS</span>
+                <h3 class="h5 fw-black">Programming Practice</h3>
+                <p class="mb-0">Revise DSA, Java, Python, DBMS, OS, networking, and basic coding concepts through short timed rounds.</p>
               </article>
             </div>
             <div class="col-12 col-md-4">
               <article class="sc-card h-100 p-4">
-                <span class="feature-icon mb-3">GO</span>
-                <h3 class="h5 fw-black">Live Lobby</h3>
-                <p class="text-slate-400 mb-0">Watch players jump in, ready up, and launch the match together.</p>
+                <span class="feature-icon mb-3">FR</span>
+                <h3 class="h5 fw-black">Friend Rooms</h3>
+                <p class="mb-0">Create a room, share the code, and prepare with classmates so study sessions stay active and accountable.</p>
               </article>
             </div>
             <div class="col-12 col-md-4">
               <article class="sc-card h-100 p-4">
-                <span class="feature-icon mb-3">#1</span>
-                <h3 class="h5 fw-black">Leaderboards</h3>
-                <p class="text-slate-400 mb-0">Every fast answer pushes you closer to the top of the final standings.</p>
+                <span class="feature-icon mb-3">HR</span>
+                <h3 class="h5 fw-black">Interview Confidence</h3>
+                <p class="mb-0">Use scores and rankings to spot weak topics before interviews, online tests, and placement drives.</p>
               </article>
             </div>
           </div>
@@ -117,18 +117,38 @@
           <div class="sc-card p-4 p-lg-5">
             <div class="row g-4 align-items-center">
               <div class="col-12 col-lg-4">
-                <span class="sc-pill mb-3">Simple flow</span>
+                <span class="sc-pill mb-3">Simple study flow</span>
                 <h2 class="h1 fw-black">How SkillClash works</h2>
               </div>
               <div class="col-12 col-lg-8">
                 <div class="row g-3">
-                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>1. Register or Login</strong><p class="text-slate-400 mb-0">Start with your player identity.</p></div></div>
-                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>2. Create or Join</strong><p class="text-slate-400 mb-0">Host a room or enter a room code.</p></div></div>
-                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>3. Wait in Lobby</strong><p class="text-slate-400 mb-0">See members update in real time.</p></div></div>
-                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>4. Battle and Rank</strong><p class="text-slate-400 mb-0">Answer questions and view final results.</p></div></div>
+                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>1. Register or Login</strong><p class="mb-0">Start with your learner profile.</p></div></div>
+                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>2. Create or Join</strong><p class="mb-0">Host a practice room or enter your friend's room code.</p></div></div>
+                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>3. Pick a Round</strong><p class="mb-0">Practice coding, aptitude, or interview fundamentals.</p></div></div>
+                  <div class="col-12 col-sm-6"><div class="sc-card-muted p-3 h-100"><strong>4. Review Scores</strong><p class="mb-0">Compare results and decide what to revise next.</p></div></div>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section id="companies" class="container section-pad">
+          <div class="text-center mb-4">
+            <span class="sc-pill mb-3">Dream-company preparation</span>
+            <h2 class="h1 fw-black">Practice for the places programmers aim for</h2>
+            <p class="lead mx-auto company-copy">Keep your preparation focused for online assessments, internships, campus placements, and entry-level IT roles.</p>
+          </div>
+          <div class="company-cloud" aria-label="Company and coding platform examples">
+            <span>Google</span>
+            <span>Amazon</span>
+            <span>Microsoft</span>
+            <span>Infosys</span>
+            <span>TCS</span>
+            <span>Wipro</span>
+            <span>Accenture</span>
+            <span>LeetCode</span>
+            <span>HackerRank</span>
+            <span>CodeChef</span>
           </div>
         </section>
 
@@ -136,16 +156,16 @@
           <div class="row g-4 align-items-stretch">
             <div class="col-12 col-lg-6">
               <div class="sc-card p-4 h-100">
-                <h2 class="h2 fw-black">Made for quick, friendly competition</h2>
-                <p class="text-slate-400 mb-0">SkillClash keeps the setup simple: gather your players, start the countdown, answer under pressure, and let the scoreboard settle the bragging rights.</p>
+                <h2 class="h2 fw-black">Made for serious preparation without pressure</h2>
+                <p class="mb-0">SkillClash keeps practice light, social, and consistent: gather your friends, answer under a timer, and build confidence one round at a time.</p>
               </div>
             </div>
             <div class="col-12 col-lg-6">
               <div class="sc-card p-4 h-100">
-                <h2 class="h2 fw-black">Ready to play?</h2>
-                <p class="text-slate-400">Create your account or login to start a new match flow.</p>
+                <h2 class="h2 fw-black">Ready to prepare?</h2>
+                <p>Create your account or login to start a practice room.</p>
                 <div class="d-flex flex-column flex-sm-row gap-3">
-                  <button class="btn sc-btn-primary focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+                  <button class="btn sc-btn-primary focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#registerModal">Start Practicing</button>
                   <button class="btn sc-btn-ghost focus-ring" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
                 </div>
               </div>
@@ -154,10 +174,10 @@
         </section>
       </main>
 
-      <footer class="border-top border-slate-700/60 py-4 mt-auto">
-        <div class="container d-flex flex-column flex-md-row gap-2 justify-content-between text-slate-400 small">
-          <span>SkillClash quiz battles with friends</span>
-          <span>Create a room. Beat the clock. Claim the crown.</span>
+      <footer class="py-4 mt-auto">
+        <div class="container d-flex flex-column flex-md-row gap-2 justify-content-between small">
+          <span>SkillClash interview practice with friends</span>
+          <span>Create a room. Practice together. Get job-ready.</span>
         </div>
       </footer>
     </div>

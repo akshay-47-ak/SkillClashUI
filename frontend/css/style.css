@@ -32,6 +32,24 @@ body {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+body[data-page="landing"] {
+  --sc-primary: #4f8f86;
+  --sc-secondary: #6f86d6;
+  --sc-accent: #f2b36d;
+  --sc-bg: #f7faf8;
+  --sc-bg-soft: #eef6f3;
+  --sc-card: #ffffff;
+  --sc-border: rgba(67, 95, 91, 0.16);
+  --sc-text: #20302e;
+  --sc-muted: #64746f;
+  --sc-success: #4f8f86;
+  background:
+    linear-gradient(120deg, rgba(111, 134, 214, 0.12), transparent 28rem),
+    linear-gradient(240deg, rgba(242, 179, 109, 0.14), transparent 30rem),
+    linear-gradient(180deg, #fbfdfb 0%, #eef6f3 58%, #f8fbf9 100%);
+  color: var(--sc-text);
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -39,6 +57,10 @@ a {
 
 a:hover {
   color: #c4b5fd;
+}
+
+body[data-page="landing"] a:hover {
+  color: #3d746d;
 }
 
 .page-shell {
@@ -63,6 +85,12 @@ a:hover {
   color: transparent;
 }
 
+body[data-page="landing"] .text-gradient {
+  background: linear-gradient(90deg, #3f7f77, #6f86d6 52%, #d88b3d);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .fw-black {
   font-weight: 900;
 }
@@ -82,6 +110,13 @@ a:hover {
   background-size: 42px 42px;
   mask-image: linear-gradient(to bottom, black, transparent 82%);
   pointer-events: none;
+}
+
+body[data-page="landing"] .hero-grid::before {
+  background-image:
+    linear-gradient(rgba(79, 143, 134, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 143, 134, 0.07) 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, black, transparent 76%);
 }
 
 .focus-ring:focus {
@@ -108,9 +143,32 @@ a:hover {
   color: #64748b;
 }
 
+body[data-page="landing"] .form-control,
+body[data-page="landing"] .form-select {
+  background-color: #fbfdfb;
+  border-color: rgba(79, 143, 134, 0.22);
+  color: var(--sc-text);
+}
+
+body[data-page="landing"] .form-control:focus,
+body[data-page="landing"] .form-select:focus {
+  background-color: #fff;
+  border-color: #4f8f86;
+  box-shadow: 0 0 0 0.25rem rgba(79, 143, 134, 0.16);
+  color: var(--sc-text);
+}
+
+body[data-page="landing"] .form-control::placeholder {
+  color: #879690;
+}
+
 .form-label {
   color: #cbd5e1;
   font-weight: 700;
+}
+
+body[data-page="landing"] .form-label {
+  color: #425954;
 }
 
 .table {
