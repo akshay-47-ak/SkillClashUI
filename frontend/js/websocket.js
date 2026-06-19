@@ -13,14 +13,29 @@ const SkillClashSocket = (() => {
   }
 
   function setUrl(url) {
-    const normalized = String(url || DEFAULT_WS_URL).trim();
+    const normalized = normalizeUrl(url);
     localStorage.setItem(STORAGE_KEY, normalized);
     resetClient();
     return normalized;
   }
 
   function socketUrl() {
-    return toHttpUrl(getUrl().replace(/\/websocket$/, ""));
+    return toHttpUrl(normalizeUrl(getUrl()));
+  }
+
+  function normalizeUrl(url) {
+    const rawUrl = String(url || DEFAULT_WS_URL).trim();
+
+    try {
+      const parsedUrl = new URL(rawUrl);
+      if (!parsedUrl.pathname || parsedUrl.pathname === "/") {
+        parsedUrl.pathname = "/ws";
+      }
+      parsedUrl.hash = "";
+      return parsedUrl.toString().replace(/\/$/, "");
+    } catch {
+      return DEFAULT_WS_URL;
+    }
   }
 
   function toHttpUrl(url) {

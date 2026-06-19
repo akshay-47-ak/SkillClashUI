@@ -69,18 +69,17 @@ const LobbyPage = (() => {
 
   async function connectRealtime() {
     try {
-      await SkillClashSocket.subscribe(`/topic/room/${roomCode}`, handleRoomUpdate);
+      [
+        `/topic/room/${roomCode}`,
+        `/topic/rooms/${roomCode}`,
+        `/topic/room/${roomCode}/members`,
+        `/topic/rooms/${roomCode}/members`
+      ].forEach((destination) => SkillClashSocket.subscribe(destination, handleRoomUpdate));
 
-      await SkillClashSocket.subscribe(`/topic/rooms/${roomCode}/members`, (payload) => {
-        updateMembers(payload);
-        render();
-      });
-
-      await SkillClashSocket.subscribe(`/topic/rooms/${roomCode}/events`, (payload) => {
-        if (payload.type === "MATCH_STARTED" || payload.event === "MATCH_STARTED") {
-          window.location.href = `quiz.html?roomCode=${encodeURIComponent(roomCode)}`;
-        }
-      });
+      [
+        `/topic/room/${roomCode}/events`,
+        `/topic/rooms/${roomCode}/events`
+      ].forEach((destination) => SkillClashSocket.subscribe(destination, handleRoomEvent));
     } catch {
       Common.showToast("Realtime connection unavailable. Lobby is in demo mode.", "error");
     }
@@ -93,6 +92,15 @@ const LobbyPage = (() => {
       Common.showToast(payload.message);
     }
     render();
+  }
+
+  function handleRoomEvent(payload) {
+    if (payload.type === "MATCH_STARTED" || payload.event === "MATCH_STARTED") {
+      window.location.href = `quiz.html?roomCode=${encodeURIComponent(roomCode)}`;
+      return;
+    }
+
+    handleRoomUpdate(payload);
   }
 
   function updateMembers(payload) {
