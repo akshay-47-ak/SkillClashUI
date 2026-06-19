@@ -30,6 +30,8 @@ const SkillClashSocket = (() => {
       const parsedUrl = new URL(rawUrl);
       if (!parsedUrl.pathname || parsedUrl.pathname === "/") {
         parsedUrl.pathname = "/ws";
+      } else if (parsedUrl.pathname === "/websocket") {
+        parsedUrl.pathname = "/ws";
       }
       parsedUrl.hash = "";
       return parsedUrl.toString().replace(/\/$/, "");
