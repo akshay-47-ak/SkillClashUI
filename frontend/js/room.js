@@ -56,14 +56,15 @@ const RoomPage = (() => {
 
       try {
         const response = await Api.post("/room/join", { userName: username, roomCode });
-        const responseRoomCode = normalizeRoomCode(response) || roomCode;
+        const responseRoomCode = normalizeRoomCode(response);
+        const lobbyRoomCode = roomCode || responseRoomCode;
 
-        if (!responseRoomCode) {
+        if (!lobbyRoomCode) {
           throw new Error("Joined room, but the server did not return a room code.");
         }
 
         const room = {
-          ...localRoom({ roomCode: responseRoomCode, username, roomName: "Skill Battle", host: false }),
+          ...localRoom({ roomCode: lobbyRoomCode, username, roomName: "Skill Battle", host: false }),
           members: normalizeMembers(response) || undefined
         };
         persistRoom(room, false);

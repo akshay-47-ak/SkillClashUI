@@ -1,9 +1,6 @@
 const LobbyPage = (() => {
   let roomCode = "";
   let members = [];
-  let refreshTimer = null;
-  let refreshEndpoint = "";
-  let refreshProbeFailed = false;
 
   function init() {
     Common.renderShell("lobby");
@@ -11,8 +8,6 @@ const LobbyPage = (() => {
     hydrateFromStorage();
     render();
     bindEvents();
-    refreshRoom();
-    startRoomRefresh();
     connectRealtime();
   }
 
@@ -91,40 +86,6 @@ const LobbyPage = (() => {
     }
   }
 
-  async function refreshRoom() {
-    if (refreshProbeFailed) return false;
-
-    const endpoints = refreshEndpoint ? [refreshEndpoint] : [
-      `/room/${roomCode}`,
-      `/room/${roomCode}/members`,
-      `/rooms/${roomCode}`,
-      `/rooms/${roomCode}/members`
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const payload = await Api.get(endpoint);
-        if (updateMembers(payload)) {
-          refreshEndpoint = endpoint;
-          persistSnapshot(payload);
-          render();
-          return true;
-        }
-      } catch {
-        continue;
-      }
-    }
-
-    refreshProbeFailed = !refreshEndpoint;
-    return false;
-  }
-
-  function startRoomRefresh() {
-    window.clearInterval(refreshTimer);
-    refreshTimer = window.setInterval(refreshRoom, 3000);
-    window.addEventListener("beforeunload", () => window.clearInterval(refreshTimer), { once: true });
-  }
-
   function handleRoomUpdate(payload) {
     updateMembers(payload);
     persistSnapshot(payload);
@@ -145,7 +106,7 @@ const LobbyPage = (() => {
     if (Array.isArray(payload)) return payload;
     if (!payload || typeof payload !== "object") return [];
 
-    return [
+    const memberList = [
       payload.members,
       payload.players,
       payload.users,
@@ -154,7 +115,41 @@ const LobbyPage = (() => {
       payload.data?.players,
       payload.room?.members,
       payload.room?.players
-    ].find(Array.isArray) || [];
+    ].find(Array.isArray);
+
+    if (memberList) return memberList;
+
+    const member = extractMember(payload);
+    if (!member) return [];
+
+    return mergeMember(members, member);
+  }
+
+  function extractMember(payload) {
+    return [
+      payload.member,
+      payload.player,
+      payload.user,
+      payload.participant,
+      payload.data?.member,
+      payload.data?.player,
+      payload.data?.user
+    ].find(isMemberLike) || (isMemberLike(payload) ? payload : null);
+  }
+
+  function mergeMember(memberList, nextMember) {
+    const nextName = memberName(nextMember).toLowerCase();
+    const existingIndex = memberList.findIndex((member) => memberName(member).toLowerCase() === nextName);
+
+    if (existingIndex === -1) {
+      return [...memberList, nextMember];
+    }
+
+    return memberList.map((member, index) => index === existingIndex ? { ...member, ...nextMember } : member);
+  }
+
+  function isMemberLike(value) {
+    return Boolean(value && typeof value === "object" && (value.username || value.userName || value.name));
   }
 
   function persistSnapshot(payload) {
